@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Sparks • Random Motivation & Quote Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       CSS Variables & Reset
+       ========================================================================== */
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.45);
+      --accent: #ec4899;
+      --accent-glow: rgba(236, 72, 153, 0.4);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.35);
+
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(255, 255, 255, 0.95);
+      --card-shadow: 0 30px 70px -15px rgba(67, 56, 202, 0.18),
+                     0 15px 35px -10px rgba(0, 0, 0, 0.08),
+                     0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+
+      --glass-btn-bg: rgba(255, 255, 255, 0.8);
+      --glass-btn-border: rgba(226, 232, 240, 0.9);
+      --glass-btn-hover: #f8fafc;
+
+      --font-quote: 'Playfair Display', 'Noto Sans Tamil', Georgia, serif;
+      --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --radius-card: 28px;
+      --radius-btn: 14px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: #0f172a;
+      overflow-x: hidden;
+      position: relative;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       Background Ambient Atmosphere
+       ========================================================================== */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background: radial-gradient(circle at 10% 20%, #4338ca 0%, #1e1b4b 35%, #0f172a 75%);
+    }
+
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(85px);
+      opacity: 0.65;
+      animation: floatAround 20s infinite alternate ease-in-out;
+      will-change: transform;
+    }
+
+    .orb-1 {
+      width: 480px;
+      height: 480px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      top: -10%;
+      left: -5%;
+      animation-duration: 22s;
+    }
+
+    .orb-2 {
+      width: 420px;
+      height: 420px;
+      background: linear-gradient(135deg, #ec4899, #f43f5e);
+      bottom: -10%;
+      right: -5%;
+      animation-duration: 26s;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 360px;
+      height: 360px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-duration: 28s;
+      animation-delay: -10s;
+      opacity: 0.45;
+    }
+
+    @keyframes floatAround {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+      50% {
+        transform: translate(60px, 45px) scale(1.08);
+      }
+      100% {
+        transform: translate(-40px, 70px) scale(0.95);
+      }
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       App Container & Header
+       ========================================================================== */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 1rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #f8fafc;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .brand-icon {
+      width: 18px;
+      height: 18px;
+      fill: #fbbf24;
+      animation: pulseSparkle 3s infinite;
+    }
+
+    @keyframes pulseSparkle {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+      50% { transform: scale(1.15) rotate(15deg); opacity: 1; }
+    }
+
+    /* ==========================================================================
+       Glass-Morphic Quote Card
+       ========================================================================== */
+    .quote-card {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      padding: 2.75rem 2.75rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .quote-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #06b6d4);
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+    }
+
+    /* Card Top Bar */
+    .card-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: var(--transition);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: var(--glass-btn-bg);
+      border: 1px solid var(--glass-btn-border);
+      color: var(--text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .icon-btn:hover {
+      background: var(--glass-btn-hover);
+      color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .icon-btn svg {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+    }
+
+    /* Decorative Quote Icon */
+    .quote-mark {
+      color: rgba(99, 102, 241, 0.15);
+      font-size: 5.5rem;
+      line-height: 0.7;
+      font-family: var(--font-quote);
+      user-select: none;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Quote Text Content */
+    .quote-content {
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .quote-text {
+      font-family: var(--font-quote);
+      font-size: clamp(1.35rem, 2.7vw, 1.75rem);
+      line-height: 1.55;
+      color: var(--text-main);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .quote-text.anim-fade-out {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .quote-text.anim-fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Author Section */
+    .quote-author-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-top: 1.25rem;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .quote-author-wrap.anim-fade-out {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    .author-line {
+      width: 28px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+
+    .author-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .quote-author {
+      font-family: var(--font-ui);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-style: italic;
+    }
+
+    .quote-role {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Divider */
+    .card-divider {
+      height: 1px;
+      background: rgba(226, 232, 240, 0.85);
+      margin: 0.5rem 0 1.75rem;
+      width: 100%;
+    }
+
+    /* Card Footer Actions */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .secondary-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      user-select: none;
+      outline: none;
+    }
+
+    /* Primary "New Quote" Button */
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+      background-size: 200% 200%;
+      background-position: left center;
+      color: #ffffff;
+      box-shadow: 0 10px 25px -4px var(--primary-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -4px var(--primary-glow);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 15px -2px var(--primary-glow);
+    }
+
+    .btn-primary svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-primary.spinning svg {
+      transform: rotate(360deg);
+    }
+
+    /* Copy Button */
+    .btn-copy {
+      background: var(--glass-btn-bg);
+      color: var(--text-main);
+      border: 1px solid var(--glass-btn-border);
+      position: relative;
+    }
+
+    .btn-copy:hover {
+      background: var(--glass-btn-hover);
+      border-color: rgba(203, 213, 225, 0.9);
+      color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-copy svg {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+      transition: var(--transition);
+    }
+
+    /* Copied State for Button */
+    .btn-copy.copied {
+      background: #ecfdf5 !important;
+      color: var(--success) !important;
+      border-color: rgba(16, 185, 129, 0.4) !important;
+      box-shadow: 0 6px 18px var(--success-glow) !important;
+    }
+
+    .btn-copy.copied svg {
+      fill: var(--success) !important;
+    }
+
+    /* Social Icons */
+    .btn-share {
+      background: var(--glass-btn-bg);
+      border: 1px solid var(--glass-btn-border);
+      color: var(--text-muted);
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-btn);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-share:hover {
+      background: var(--glass-btn-hover);
+      color: #0284c7;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-share svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Keyboard Hint Bar */
+    .keyboard-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .kbd-key {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.72rem;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+      pointer-events: none;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.75rem 1.4rem;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35),
+                  0 0 0 1px rgba(255, 255, 255, 0.15);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast-icon {
+      width: 18px;
+      height: 18px;
+      fill: #10b981;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .quote-card { padding: 2rem 1.5rem 1.75rem; border-radius: 20px; }
+      .card-actions { flex-direction: column-reverse; width: 100%; gap: 0.75rem; }
+      .secondary-actions { width: 100%; justify-content: space-between; }
+      .btn-primary { width: 100%; }
+      .btn-copy { flex: 1; }
+      .keyboard-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Animated Gradient Background -->
+  <div class="bg-canvas" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- Main Container -->
+  <main class="app-wrapper">
+    
+    <header class="app-brand">
+      <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/>
+      </svg>
+      <span>Daily Inspiration</span>
+    </header>
+
+    <!-- Glassmorphic Card -->
+    <article class="quote-card" id="quoteCard" aria-live="polite">
+      
+      <div class="card-topbar">
+        <span class="category-badge" id="quoteCategory">
+          <span id="categoryName">Motivation</span>
+        </span>
+
+        <div class="top-actions">
+          <!-- Text to Speech Button -->
+          <button class="icon-btn" id="btnSpeak" title="Read Quote Aloud" aria-label="Listen to quote">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="quote-mark" aria-hidden="true">“</div>
+
+      <!-- Quote Content -->
+      <div class="quote-content">
+        <blockquote class="quote-text" id="quoteText">
+          Loading inspirational quote...
+        </blockquote>
+        <div class="quote-author-wrap" id="authorWrapper">
+          <div class="author-line" aria-hidden="true"></div>
+          <div class="author-info">
+            <cite class="quote-author" id="quoteAuthor">— Author</cite>
+            <span class="quote-role" id="quoteRole">Visionary Thinker</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-divider" aria-hidden="true"></div>
+
+      <!-- Footer Actions -->
+      <footer class="card-actions">
+        <div class="secondary-actions">
+          <!-- Copy Button -->
+          <button class="btn btn-copy" id="btnCopy" title="Copy to Clipboard" aria-label="Copy quote to clipboard">
+            <svg id="copyIcon" viewBox="0 0 24 24">
+              <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+            </svg>
+            <span id="copyBtnText">Copy</span>
+          </button>
+
+          <!-- WhatsApp Share -->
+          <button class="btn-share" id="btnWhatsApp" title="Share via WhatsApp" aria-label="Share quote on WhatsApp">
+            <svg viewBox="0 0 24 24">
+              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.26 7.42C9.07 7.42 8.76 7.49 8.5 7.78C8.24 8.06 7.5 8.76 7.5 10.18C7.5 11.6 8.53 12.97 8.68 13.16C8.83 13.35 10.66 16.17 13.47 17.38C14.14 17.67 14.66 17.84 15.07 17.97C15.74 18.19 16.35 18.15 16.83 18.08C17.37 18 18.49 17.4 18.72 16.74C18.96 16.08 18.96 15.52 18.89 15.4C18.82 15.28 18.63 15.21 18.35 15.07C18.06 14.93 16.66 14.24 16.4 14.15C16.14 14.05 15.95 14.01 15.76 14.29C15.57 14.58 15.03 15.21 14.86 15.4C14.7 15.6 14.53 15.62 14.25 15.48C13.97 15.34 13.06 15.04 11.98 14.08C11.14 13.33 10.57 12.4 10.41 12.12C10.25 11.84 10.39 11.69 10.53 11.55C10.66 11.42 10.82 11.21 10.96 11.04C11.1 10.88 11.15 10.76 11.24 10.57C11.33 10.38 11.29 10.22 11.22 10.08C11.15 9.94 10.59 8.56 10.35 8C10.13 7.45 9.9 7.53 9.73 7.52C9.57 7.51 9.41 7.42 9.26 7.42Z"/>
+            </svg>
+          </button>
+
+          <!-- Twitter / X Share -->
+          <button class="btn-share" id="btnTwitter" title="Share on X" aria-label="Share quote on X">
+            <svg viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Primary Action Button: "New Quote / புதிய பொன்மொழி" -->
+        <button class="btn btn-primary" id="btnNewQuote">
+          <svg viewBox="0 0 24 24" id="refreshIcon" aria-hidden="true">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          <span>New Quote / புதிய பொன்மொழி</span>
+        </button>
+      </footer>
+
+    </article>
+
+    <!-- Keyboard Navigation Hint -->
+    <div class="keyboard-hint" aria-hidden="true">
+      <span>Pro tip: Press</span>
+      <kbd class="kbd-key">Space</kbd>
+      <span>for new quote</span>
+      <span>•</span>
+      <kbd class="kbd-key">C</kbd>
+      <span>to copy</span>
+    </div>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastNotification" role="status" aria-live="polite">
+    <svg class="toast-icon" viewBox="0 0 24 24">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+    </svg>
+    <span id="toastMessage">Quote copied to clipboard!</span>
+  </div>
+
+  <!-- ==========================================================================
+       JavaScript Logic
+       ========================================================================== */
+  -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* 1. Motivational Quotes Collection */
+      const quotes = [
+        {
+          quote: "You have to dream before your dreams can come true.",
+          author: "Dr. A.P.J. Abdul Kalam",
+          role: "Aerospace Scientist & 11th President of India",
+          category: "Vision & Purpose"
+        },
+        {
+          quote: "வெள்ளத் தனைய மலர்நீட்டம் மாந்தர்தம் உள்ளத் தனையது உயர்வு.",
+          author: "திருவள்ளுவர் (Thiruvalluvar)",
+          role: "Ancient Tamil Philosopher • திருக்குறள்",
+          category: "உயர் சிந்தனை • Ambition"
+        },
+        {
+          quote: "Arise, awake, and stop not until the goal is reached.",
+          author: "Swami Vivekananda",
+          role: "Philosopher & Spiritual Pioneer",
+          category: "Perseverance"
+        },
+        {
+          quote: "யாதும் ஊரே யாவரும் கேளிர்; தீதும் நன்றும் பிறர்தர வாரா.",
+          author: "கணியன் பூங்குன்றனார் (Kaniyan Poongundranar)",
+          role: "Sangam Era Poet • புறநானூறு",
+          category: "உலக அமைதி • Humanity"
+        },
+        {
+          quote: "In the middle of difficulty lies opportunity.",
+          author: "Albert Einstein",
+          role: "Theoretical Physicist & Nobel Laureate",
+          category: "Resilience"
+        },
+        {
+          quote: "எண்ணிய முடிதல் வேண்டும், நல்லவே எண்ணல் வேண்டும்.",
+          author: "மகாகவி சுப்பிரமணிய பாரதியார் (Bharathiyar)",
+          role: "Revolutionary Poet & Visionary",
+          category: "தன்னம்பிக்கை • Willpower"
+        },
+        {
+          quote: "Your time is limited, so don't waste it living someone else's life.",
+          author: "Steve Jobs",
+          role: "Co-founder of Apple & Innovator",
+          category: "Authenticity"
+        },
+        {
+          quote: "முயற்சி திருவினையாக்கும்; முயற்றின்மை இன்மை புகுத்தி விடும்.",
+          author: "திருவள்ளுவர் (Thiruvalluvar)",
+          role: "Ancient Tamil Philosopher • திருக்குறள்",
+          category: "விடாமுயற்சி • Diligence"
+        },
+        {
+          quote: "It always seems impossible until it's done.",
+          author: "Nelson Mandela",
+          role: "Anti-Apartheid Leader & Nobel Peace Prize Laureate",
+          category: "Courage"
+        },
+        {
+          quote: "The future belongs to those who believe in the beauty of their dreams.",
+          author: "Eleanor Roosevelt",
+          role: "Diplomat & Human Rights Advocate",
+          category: "Optimism"
+        },
+        {
+          quote: "If you want to shine like a sun, first burn like a sun.",
+          author: "Dr. A.P.J. Abdul Kalam",
+          role: "Aerospace Scientist & Visionary Leader",
+          category: "Hard Work"
+        },
+        {
+          quote: "தோல்வி என்பது வெற்றியின் முதல் படி; துணிவே துணை.",
+          author: "தமிழ் பொன்மொழி (Tamil Proverb)",
+          role: "Ancient Wisdom",
+          category: "துணிவு • Bravery"
+        },
+        {
+          quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+          author: "Winston Churchill",
+          role: "Statesman & Orator",
+          category: "Endurance"
+        },
+        {
+          quote: "What lies behind us and what lies before us are tiny matters compared to what lies within us.",
+          author: "Ralph Waldo Emerson",
+          role: "Philosopher, Essayist & Poet",
+          category: "Inner Strength"
+        },
+        {
+          quote: "Happiness is not something ready made. It comes from your own actions.",
+          author: "Dalai Lama",
+          role: "Spiritual Leader & Nobel Laureate",
+          category: "Mindfulness"
+        },
+        {
+          quote: "The secret of getting ahead is getting started.",
+          author: "Mark Twain",
+          role: "Humorist & Author",
+          category: "Action"
+        }
+      ];
+
+      /* 2. DOM Elements */
+      const quoteText = document.getElementById('quoteText');
+      const quoteAuthor = document.getElementById('quoteAuthor');
+      const quoteRole = document.getElementById('quoteRole');
+      const categoryName = document.getElementById('categoryName');
+      const authorWrapper = document.getElementById('authorWrapper');
+
+      const btnNewQuote = document.getElementById('btnNewQuote');
+      const btnCopy = document.getElementById('btnCopy');
+      const copyBtnText = document.getElementById('copyBtnText');
+      const copyIcon = document.getElementById('copyIcon');
+      const btnSpeak = document.getElementById('btnSpeak');
+      const btnTwitter = document.getElementById('btnTwitter');
+      const btnWhatsApp = document.getElementById('btnWhatsApp');
+
+      const toast = document.getElementById('toastNotification');
+      const toastMessage = document.getElementById('toastMessage');
+
+      let currentQuoteIndex = -1;
+      let toastTimeout = null;
+      let isTransitioning = false;
+
+      /* 3. Quote Randomizer */
+      function getRandomIndex(excludeIndex) {
+        if (quotes.length <= 1) return 0;
+        let newIndex;
+        do {
+          newIndex = Math.floor(Math.random() * quotes.length);
+        } while (newIndex === excludeIndex);
+        return newIndex;
+      }
+
+      function displayQuote(index, animated = true) {
+        if (isTransitioning) return;
+        const item = quotes[index];
+        currentQuoteIndex = index;
+
+        if (!animated) {
+          quoteText.textContent = item.quote;
+          quoteAuthor.textContent = `— ${item.author}`;
+          quoteRole.textContent = item.role;
+          categoryName.textContent = item.category;
+          return;
+        }
+
+        isTransitioning = true;
+        btnNewQuote.classList.add('spinning');
+
+        // Fade Out
+        quoteText.classList.remove('anim-fade-in');
+        quoteText.classList.add('anim-fade-out');
+        authorWrapper.classList.remove('anim-fade-in');
+        authorWrapper.classList.add('anim-fade-out');
+
+        setTimeout(() => {
+          quoteText.textContent = item.quote;
+          quoteAuthor.textContent = `— ${item.author}`;
+          quoteRole.textContent = item.role;
+          categoryName.textContent = item.category;
+
+          // Fade In
+          quoteText.classList.remove('anim-fade-out');
+          quoteText.classList.add('anim-fade-in');
+          authorWrapper.classList.remove('anim-fade-out');
+          authorWrapper.classList.add('anim-fade-in');
+
+          setTimeout(() => {
+            btnNewQuote.classList.remove('spinning');
+            isTransitioning = false;
+          }, 350);
+        }, 300);
+      }
+
+      function nextQuote() {
+        const nextIndex = getRandomIndex(currentQuoteIndex);
+        displayQuote(nextIndex, true);
+      }
+
+      /* 4. Copy to Clipboard */
+      function copyCurrentQuote() {
+        const item = quotes[currentQuoteIndex];
+        if (!item) return;
+
+        const textToCopy = `"${item.quote}"\n— ${item.author} (${item.role})`;
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(textToCopy)
+            .then(() => triggerCopiedState())
+            .catch(() => fallbackCopy(textToCopy));
+        } else {
+          fallbackCopy(textToCopy);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          triggerCopiedState();
+        } catch (err) {
+          showToast('Could not copy to clipboard.');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+
+      function triggerCopiedState() {
+        btnCopy.classList.add('copied');
+        copyBtnText.textContent = 'Copied!';
+        copyIcon.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+
+        showToast('Quote copied to clipboard! ✨');
+
+        setTimeout(() => {
+          btnCopy.classList.remove('copied');
+          copyBtnText.textContent = 'Copy';
+          copyIcon.innerHTML = '<path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>';
+        }, 2200);
+      }
+
+      function showToast(msg) {
+        toastMessage.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2500);
+      }
+
+      /* 5. Audio Speech Synthesis */
+      function readAloud() {
+        if (!('speechSynthesis' in window)) {
+          showToast('Audio reading not supported in this browser.');
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        const item = quotes[currentQuoteIndex];
+        if (!item) return;
+
+        const utterance = new SpeechSynthesisUtterance(`${item.quote} by ${item.author}`);
+        utterance.rate = 0.95;
+        utterance.pitch = 1.0;
+        
+        btnSpeak.style.color = 'var(--primary)';
+        utterance.onend = () => { btnSpeak.style.color = ''; };
+        utterance.onerror = () => { btnSpeak.style.color = ''; };
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      /* 6. Social Sharing */
+      function shareToTwitter() {
+        const item = quotes[currentQuoteIndex];
+        if (!item) return;
+        const text = encodeURIComponent(`"${item.quote}" — ${item.author}\n\n#Inspiration #Motivation`);
+        const url = `https://twitter.com/intent/tweet?text=${text}`;
+        window.open(url, '_blank', 'noopener,noreferrer,width=600,height=400');
+      }
+
+      function shareToWhatsApp() {
+        const item = quotes[currentQuoteIndex];
+        if (!item) return;
+        const text = encodeURIComponent(`"${item.quote}"\n— ${item.author}\n\n*Sparked by Daily Motivation* ✨`);
+        const url = `https://api.whatsapp.com/send?text=${text}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      /* 7. Event Handlers & Keyboard Shortcuts */
+      btnNewQuote.addEventListener('click', nextQuote);
+      btnCopy.addEventListener('click', copyCurrentQuote);
+      btnSpeak.addEventListener('click', readAloud);
+      btnTwitter.addEventListener('click', shareToTwitter);
+      btnWhatsApp.addEventListener('click', shareToWhatsApp);
+
+      document.addEventListener('keydown', (e) => {
+        if (['input', 'textarea'].includes(document.activeElement.tagName.toLowerCase())) return;
+
+        if (e.code === 'Space') {
+          e.preventDefault();
+          nextQuote();
+        } else if (e.key === 'c' || e.key === 'C') {
+          if (!e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            copyCurrentQuote();
+          }
+        }
+      });
+
+      /* 8. Initial Load */
+      const initialIndex = getRandomIndex(-1);
+      displayQuote(initialIndex, false);
+
+    })();
+  </script>
+</body>
+</html>
